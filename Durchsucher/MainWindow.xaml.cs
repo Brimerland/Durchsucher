@@ -51,21 +51,20 @@ namespace Durchsucher
 
         List<FileEntry> CollectFileEntries(string directory, List<FileEntry> fillMe)
         {
-            var comparison = new Comparison<string>((a, b) =>
+            var ignoreCaseComparison = new Comparison<string>((a, b) =>
             {
-                return a.ToLowerInvariant().CompareTo(b.ToLowerInvariant());
+                return String.Compare(a, b, ignoreCase:true);
             });
 
             System.Diagnostics.Debug.WriteLine(directory);
-            var result = fillMe != null ? fillMe : new List<FileEntry>();
+            var result = fillMe ?? new List<FileEntry>();
 
             try
             {
                 var filenames = new List<string>(System.IO.Directory.GetFiles(directory));
-                filenames.Sort(comparison);
+                filenames.Sort(ignoreCaseComparison);
                 foreach (var fileName in filenames)
                     result.Add(new FileEntry() { Name = System.IO.Path.GetFileName(fileName), Location = directory });
-
             }
             catch
             { }
@@ -73,7 +72,7 @@ namespace Durchsucher
             try
             {
                 var dirnames = new List<string>(System.IO.Directory.GetDirectories(directory));
-                dirnames.Sort(comparison);
+                dirnames.Sort(ignoreCaseComparison);
                 foreach (var dirName in dirnames)
                     CollectFileEntries(System.IO.Path.Combine(directory, dirName), result);
             }
@@ -85,20 +84,20 @@ namespace Durchsucher
 
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var selectedSong = (sender as DataGrid).SelectedItem as FileEntry;
-            if (selectedSong != null)
+            var selectedFile = (sender as DataGrid).SelectedItem as FileEntry;
+            if (selectedFile != null)
             {
                 if (e.ChangedButton == MouseButton.Left)
                 {
-                    var src = System.IO.Path.Combine(selectedSong.Location, selectedSong.Name);
-                    var dst = System.IO.Path.Combine(GetTempDataFolder(), selectedSong.Name);
+                    var src = System.IO.Path.Combine(selectedFile.Location, selectedFile.Name);
+                    var dst = System.IO.Path.Combine(GetTempDataFolder(), selectedFile.Name);
                     InitTempDataFolder();
-                    File.WriteAllBytes(dst, File.ReadAllBytes(src));
+                    File.Copy(src, dst, overwrite:true);
                     ShellExecute(0, "open", dst, "", "", 5);
                 }
                 else if (e.ChangedButton == MouseButton.Right)
                 {
-                    var src = System.IO.Path.Combine(selectedSong.Location, selectedSong.Name);
+                    var src = System.IO.Path.Combine(selectedFile.Location, selectedFile.Name);
                     ShellExecute(0, "open", "explorer.exe", string.Format("/select,\"{0}\"", src), "", 5);
                 }
             }
@@ -122,7 +121,7 @@ namespace Durchsucher
         public static extern long ShellExecute(int hwnd, string cmd, string file, string param1, string param2, int swmode);
 
 
-        void Filter()
+        void ApplyFilter()
         {
             bool invert = cbInvert.IsChecked == true;
             var text = tbFilter.Text.ToLower();
@@ -131,12 +130,12 @@ namespace Durchsucher
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Filter();
+            ApplyFilter();
         }
 
         private void cbInvert_Checked(object sender, RoutedEventArgs e)
         {
-            Filter();
+            ApplyFilter();
         }
 
         private void Window_Closed(object sender, EventArgs e)
