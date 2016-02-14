@@ -91,7 +91,8 @@ namespace Durchsucher
                 if (e.ChangedButton == MouseButton.Left)
                 {
                     var src = System.IO.Path.Combine(selectedSong.Location, selectedSong.Name);
-                    var dst = System.IO.Path.Combine("v:/inbox/tempMP3", selectedSong.Name);
+                    var dst = System.IO.Path.Combine(GetTempDataFolder(), selectedSong.Name);
+                    InitTempDataFolder();
                     File.WriteAllBytes(dst, File.ReadAllBytes(src));
                     ShellExecute(0, "open", dst, "", "", 5);
                 }
@@ -101,6 +102,20 @@ namespace Durchsucher
                     ShellExecute(0, "open", "explorer.exe", string.Format("/select,\"{0}\"", src), "", 5);
                 }
             }
+        }
+
+        private void InitTempDataFolder()
+        {
+            if (!Directory.Exists(GetTempDataFolder()))
+            {
+                Directory.CreateDirectory(GetTempDataFolder());
+            }
+        }
+
+        private String GetTempDataFolder()
+        {
+            String retValue = Path.Combine(Path.GetTempPath(), "durchsucher");
+            return retValue;
         }
 
         [DllImport("shell32.dll", EntryPoint = "ShellExecute")]
@@ -122,6 +137,19 @@ namespace Durchsucher
         private void cbInvert_Checked(object sender, RoutedEventArgs e)
         {
             Filter();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            DeleteTempDataFolder();
+        }
+
+        private void DeleteTempDataFolder()
+        {
+            if (Directory.Exists(GetTempDataFolder()))
+            {
+                Directory.Delete(GetTempDataFolder(), recursive:true);
+            }
         }
     }
 
