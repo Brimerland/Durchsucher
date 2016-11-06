@@ -1,4 +1,5 @@
-﻿using MetaFilesystem.Data;
+﻿using GdaTools;
+using MetaFilesystem.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,8 +70,31 @@ namespace MetaFilesystem
                     String name = fileInfo.Name;
                     String location = fileInfo.DirectoryName;
                     long length = fileInfo.Length;
-                    Entries.Add(new FileEntry() { Name = name, Location = location, Size = length });
+                    String hash = "";
+                    try
+                    {
+                        if (name.EndsWith("jpg"))
+                        {
+                            hash = ByteTools.ToByteString(FileTools.CreateMD5(fileInfo.FullName));
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        LogError(ex);
+                    }
+                    Entries.Add(new FileEntry()
+                    {
+                        Name = name,
+                        Location = location,
+                        Size = length,
+                        Hash = hash
+                    });
                 }
+            }
+
+            private void LogError(Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 

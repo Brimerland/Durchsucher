@@ -47,6 +47,12 @@
     <Compile Include="ITraversalHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GdaTools\GdaTools.csproj">
+      <Project>{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}</Project>
+      <Name>GdaTools</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
