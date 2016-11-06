@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Durchsucher", "Durchsucher\Durchsucher.csproj", "{B0E8FC79-617A-4E47-B7EE-155EC2D2D726}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFilesystem", "MetaFilesystem\MetaFilesystem.csproj", "{CD59BFC7-9C62-4C30-89C7-F8BE192112CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GdaTools", "GdaTools\GdaTools.csproj", "{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{B0E8FC79-617A-4E47-B7EE-155EC2D2D726}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0E8FC79-617A-4E47-B7EE-155EC2D2D726}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0E8FC79-617A-4E47-B7EE-155EC2D2D726}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD59BFC7-9C62-4C30-89C7-F8BE192112CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD59BFC7-9C62-4C30-89C7-F8BE192112CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD59BFC7-9C62-4C30-89C7-F8BE192112CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD59BFC7-9C62-4C30-89C7-F8BE192112CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

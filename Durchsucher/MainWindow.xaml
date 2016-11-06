@@ -13,10 +13,10 @@
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <CheckBox x:Name="cbInvert" Margin="0,0,10,0" Checked="cbInvert_Checked" Unchecked="cbInvert_Checked">invert</CheckBox>
+                <CheckBox Margin="0,0,10,0" IsChecked="{Binding IsInverted}">invert</CheckBox>
                 <TextBlock>Filter:</TextBlock>
-                <TextBox x:Name="tbFilter" Grid.Row="0" TextChanged="TextBox_TextChanged" Width="359"></TextBox>
-                <TextBlock Text="{Binding Path=FilteredEntries.Count}"></TextBlock>
+                <TextBox Text="{Binding Path=FilterText, UpdateSourceTrigger=PropertyChanged}" Width="359"></TextBox>
+                <TextBlock Text="{Binding FilteredEntries.Count}"></TextBlock>
             </StackPanel>
             <DataGrid Grid.Row="1" ItemsSource="{Binding Path=FilteredEntries}" IsReadOnly="True" MouseDoubleClick="DataGrid_MouseDoubleClick"></DataGrid>
         </Grid>

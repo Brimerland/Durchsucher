@@ -1,4 +1,7 @@
-﻿using System;
+﻿using GdaTools;
+using MetaFilesystem;
+using MetaFilesystem.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -15,71 +18,31 @@ namespace Durchsucher
     /// </summary>
     public partial class MainWindow : Window
     {
-        Model myModel = new Model();
+        private static readonly String FILENAME_ENTRIES = "durchsucher_files.xml";
+        private static readonly String DIRECTORYNAME_TEMP = "durchsucher";
+
+        private FilterModel _filterModel = new FilterModel();
 
         public MainWindow()
         {
             // todo: build UI for this
             bool refresh = true;
-            var dataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments, Environment.SpecialFolderOption.None), "durchsucher_files.xml");
+            var dataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments, Environment.SpecialFolderOption.None), FILENAME_ENTRIES);
             var srcDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None);
 
             InitializeComponent();
 
             // load data
+            if (refresh)
             {
-                XmlSerializer s = new XmlSerializer(typeof(List<FileEntry>));
-
-                if (refresh)
-                {
-                    myModel.AllEntries = CollectFileEntries(srcDir, null);
-
-                    var sw = new StringWriter();
-                    s.Serialize(sw, myModel.AllEntries);
-                    File.WriteAllText(dataFile, sw.ToString());
-                }
-                else
-                {
-                    var sr = new StringReader(File.ReadAllText(dataFile));
-                    myModel.AllEntries = (List<FileEntry>)s.Deserialize(sr);
-                }
+                _filterModel.CollectFromDirectory(srcDir);
+                _filterModel.SaveToFile(dataFile);
             }
-
-            myModel.FilteredEntries = myModel.AllEntries;
-            this.DataContext = myModel;
-        }
-
-        List<FileEntry> CollectFileEntries(string directory, List<FileEntry> fillMe)
-        {
-            var ignoreCaseComparison = new Comparison<string>((a, b) =>
+            else
             {
-                return String.Compare(a, b, ignoreCase:true);
-            });
-
-            System.Diagnostics.Debug.WriteLine(directory);
-            var result = fillMe ?? new List<FileEntry>();
-
-            try
-            {
-                var filenames = new List<string>(System.IO.Directory.GetFiles(directory));
-                filenames.Sort(ignoreCaseComparison);
-                foreach (var fileName in filenames)
-                    result.Add(new FileEntry() { Name = System.IO.Path.GetFileName(fileName), Location = directory });
+                _filterModel.LoadFromFile(dataFile);
             }
-            catch
-            { }
-
-            try
-            {
-                var dirnames = new List<string>(System.IO.Directory.GetDirectories(directory));
-                dirnames.Sort(ignoreCaseComparison);
-                foreach (var dirName in dirnames)
-                    CollectFileEntries(System.IO.Path.Combine(directory, dirName), result);
-            }
-            catch
-            { }
-
-            return result;
+            this.DataContext = _filterModel;
         }
 
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -89,53 +52,41 @@ namespace Durchsucher
             {
                 if (e.ChangedButton == MouseButton.Left)
                 {
-                    var src = System.IO.Path.Combine(selectedFile.Location, selectedFile.Name);
-                    var dst = System.IO.Path.Combine(GetTempDataFolder(), selectedFile.Name);
-                    InitTempDataFolder();
-                    File.Copy(src, dst, overwrite:true);
-                    ShellExecute(0, "open", dst, "", "", 5);
+                    Open(selectedFile);
                 }
                 else if (e.ChangedButton == MouseButton.Right)
                 {
-                    var src = System.IO.Path.Combine(selectedFile.Location, selectedFile.Name);
-                    ShellExecute(0, "open", "explorer.exe", string.Format("/select,\"{0}\"", src), "", 5);
+                    OpenInExplorer(selectedFile);
                 }
             }
+        }
+
+        private static void OpenInExplorer(FileEntry selectedFile)
+        {
+            var src = Path.Combine(selectedFile.Location, selectedFile.Name);
+            FileTools.OpenInExplorer(src);
+        }
+
+        private void Open(FileEntry selectedFile)
+        {
+            var src = Path.Combine(selectedFile.Location, selectedFile.Name);
+            var dst = Path.Combine(GetTempDataFolder(), selectedFile.Name);
+            InitTempDataFolder();
+            File.Copy(src, dst, overwrite: true);
+            FileTools.OpenInDefaultApplication(dst);
         }
 
         private void InitTempDataFolder()
         {
-            if (!Directory.Exists(GetTempDataFolder()))
-            {
-                Directory.CreateDirectory(GetTempDataFolder());
-            }
+
+            var tempDataFolder = GetTempDataFolder();
+            Directory.CreateDirectory(tempDataFolder);
         }
 
         private String GetTempDataFolder()
         {
-            String retValue = Path.Combine(Path.GetTempPath(), "durchsucher");
+            String retValue = Path.Combine(Path.GetTempPath(), DIRECTORYNAME_TEMP);
             return retValue;
-        }
-
-        [DllImport("shell32.dll", EntryPoint = "ShellExecute")]
-        public static extern long ShellExecute(int hwnd, string cmd, string file, string param1, string param2, int swmode);
-
-
-        void ApplyFilter()
-        {
-            bool invert = cbInvert.IsChecked == true;
-            var text = tbFilter.Text.ToLower();
-            myModel.Filter((s) => invert != (s.Name.ToLower().Contains(text) || s.Location.ToLower().Contains(text)));
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ApplyFilter();
-        }
-
-        private void cbInvert_Checked(object sender, RoutedEventArgs e)
-        {
-            ApplyFilter();
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -149,29 +100,6 @@ namespace Durchsucher
             {
                 Directory.Delete(GetTempDataFolder(), recursive:true);
             }
-        }
-    }
-
-    public class FileEntry
-    {
-        public String Name { get; set; }
-        public int Size { get; set; }
-        public String Location { get; set; }
-    }
-
-    public class Model : INotifyPropertyChanged
-    {
-        public List<FileEntry> AllEntries = new List<FileEntry>();
-        public List<FileEntry> FilteredEntries { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void Filter(Predicate<FileEntry> pred)
-        {
-            FilteredEntries = AllEntries.FindAll(pred);
-
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(FilteredEntries)));
         }
     }
 }

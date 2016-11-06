@@ -63,6 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FilterModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -94,6 +95,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GdaTools\GdaTools.csproj">
+      <Project>{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}</Project>
+      <Name>GdaTools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MetaFilesystem\MetaFilesystem.csproj">
+      <Project>{CD59BFC7-9C62-4C30-89C7-F8BE192112CA}</Project>
+      <Name>MetaFilesystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
