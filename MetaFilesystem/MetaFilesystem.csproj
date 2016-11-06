@@ -40,8 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractTraversalHandlerBase.cs" />
     <Compile Include="Data\FileEntry.cs" />
     <Compile Include="FileEntryRepository.cs" />
+    <Compile Include="FileSystemTraverser.cs" />
+    <Compile Include="ITraversalHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFilesystem", "MetaFiles
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GdaTools", "GdaTools\GdaTools.csproj", "{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFilesystem.Test", "MetaFilesystem.Test\MetaFilesystem.Test.csproj", "{BD5529DC-E27D-4D2B-AD01-D6E61F82F9A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC3581D4-57EB-4EAF-8061-6A30D05F4CB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD5529DC-E27D-4D2B-AD01-D6E61F82F9A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5529DC-E27D-4D2B-AD01-D6E61F82F9A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD5529DC-E27D-4D2B-AD01-D6E61F82F9A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD5529DC-E27D-4D2B-AD01-D6E61F82F9A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

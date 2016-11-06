@@ -52,55 +52,34 @@ namespace MetaFilesystem
 
         public void LoadFromDirectory(string srcDir)
         {
-            var newEntries = new List<FileEntry>();
-            CollectFileEntries(srcDir, newEntries);
+            var newEntries =  CollectFileEntries(srcDir);
             _entities.Clear();
             _entities.AddRange(newEntries);
         }
 
-        private List<FileEntry> CollectFileEntries(string directory, List<FileEntry> results)
+        private class TraversalHandler : AbstractTraversalHandlerBase
         {
-            var ignoreCaseComparison = new Comparison<string>((a, b) =>
-            {
-                return String.Compare(a, b, ignoreCase: true);
-            });
+            public List<FileEntry> Entries = new List<FileEntry>();
 
-            System.Diagnostics.Debug.WriteLine(directory);
-
-            try
+            public override void ProcessEntry(FileSystemTraverser.TraversalEntry traversalEntry)
             {
-                var filenames = new List<string>(System.IO.Directory.GetFiles(directory));
-                filenames.Sort(ignoreCaseComparison);
-                foreach (var fileName in filenames)
+                FileInfo fileInfo = traversalEntry.Info as FileInfo;
+                if(null != fileInfo)
                 {
-                    results.Add(new FileEntry() { Name = System.IO.Path.GetFileName(fileName), Location = directory });
+                    String name = fileInfo.Name;
+                    String location = fileInfo.DirectoryName;
+                    long length = fileInfo.Length;
+                    Entries.Add(new FileEntry() { Name = name, Location = location, Size = length });
                 }
             }
-            catch(Exception ex)
-            {
-                LogError(ex);
-            }
-
-            try
-            {
-                var dirnames = new List<string>(System.IO.Directory.GetDirectories(directory));
-                dirnames.Sort(ignoreCaseComparison);
-                foreach (var dirName in dirnames)
-                {
-                    CollectFileEntries(System.IO.Path.Combine(directory, dirName), results);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError(ex);
-            }
-
-            return results;
         }
 
-        private void LogError(Exception ex)
+        private List<FileEntry> CollectFileEntries(string directory)
         {
-            Console.WriteLine(ex);
+            var handler = new TraversalHandler();
+            var traverser = new FileSystemTraverser();
+            traverser.Traverse(directory, handler);
+            return handler.Entries;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace MetaFilesystem.Data
     public class FileEntry
     {
         public String Name { get; set; }
-        public int Size { get; set; }
+        public long Size { get; set; }
         public String Location { get; set; }
     }
 }
