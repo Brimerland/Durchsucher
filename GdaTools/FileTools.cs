@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -25,10 +26,11 @@ namespace GdaTools
 
         public static byte[] CreateMD5(String fileName)
         {
+            Debug.WriteLine("Creating MD5 for " + fileName);
             byte[] retValue = null;
             using (var md5 = System.Security.Cryptography.MD5.Create())
             {
-                using(var inputStream = new FileStream(fileName, FileMode.Open))
+                using(var inputStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                 {
                     retValue = md5.ComputeHash(inputStream);
                 }

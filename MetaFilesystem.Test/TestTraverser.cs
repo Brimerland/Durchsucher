@@ -11,16 +11,19 @@ namespace MetaFilesystem.Test
         [TestMethod]
         public void TraverseUserDirectory()
         {
+            //var srcDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None);
+            var srcDir = @"\\mcp\archiv";
+
             var traverser = new FileSystemTraverser();
-            var srcDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None);
             traverser.Traverse(srcDir, new Handler() );
+
         }
 
         private class Handler : AbstractTraversalHandlerBase
         {
             public override void ProcessEntry(TraversalEntry traversalEntry)
             {
-                if (traversalEntry.Info.FullName.ToLower().Contains("durchsucher"))
+                if (true)//traversalEntry.Info.FullName.ToLower().Contains("durchsucher"))
                 {
                     Debug.WriteLine(traversalEntry.Info.FullName);
                 }

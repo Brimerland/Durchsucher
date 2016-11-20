@@ -1,11 +1,13 @@
 ﻿using GdaTools;
 using MetaFilesystem;
 using MetaFilesystem.Data;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -32,16 +34,16 @@ namespace Durchsucher
 
             InitializeComponent();
 
-            // load data
-            if (refresh)
-            {
-                _filterModel.CollectFromDirectory(srcDir);
-                _filterModel.SaveToFile(dataFile);
-            }
-            else
-            {
-                _filterModel.LoadFromFile(dataFile);
-            }
+            //// load data
+            //if (refresh)
+            //{
+            //    _filterModel.CollectFromDirectory(srcDir);
+            //    _filterModel.SaveToFile(dataFile);
+            //}
+            //else
+            //{
+            //    //_filterModel.LoadFromFile(dataFile);
+            //}
             this.DataContext = _filterModel;
         }
 
@@ -101,5 +103,97 @@ namespace Durchsucher
                 Directory.Delete(GetTempDataFolder(), recursive:true);
             }
         }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                String fileName = null;
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    fileName = openFileDialog.FileName;
+                }
+                if (null != fileName)
+                {
+                    _filterModel.LoadFromFile(fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                String fileName = null;
+                var openFileDialog = new SaveFileDialog();
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    fileName = openFileDialog.FileName;
+                }
+                if (null != fileName)
+                {
+                    _filterModel.SaveToFile(fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+        }
+
+        private void ScanButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                String fileName = null;
+                var openFileDialog = new System.Windows.Forms.FolderBrowserDialog();
+                if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    fileName = openFileDialog.SelectedPath;
+                }
+                if (null != fileName)
+                {
+                    _filterModel.CollectFromDirectory(fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+        }
+
+        bool isHashing = false;
+        private CancelationToken _cancelToken = new CancelationToken();
+        private void HashButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!isHashing)
+                {
+                    _cancelToken = new CancelationToken();
+                    Task.Run(() => { _filterModel.CalculateHashes(_cancelToken); });
+                }
+                else
+                {
+                    _cancelToken.Canceled = true;
+                }
+                isHashing = !isHashing;
+                CancelButton.Content = isHashing ? "Cancel" : "CalculateHash";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+        }
+
     }
 }

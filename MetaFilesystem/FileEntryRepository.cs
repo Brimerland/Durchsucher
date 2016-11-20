@@ -2,9 +2,11 @@
 using MetaFilesystem.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
@@ -61,41 +63,43 @@ namespace MetaFilesystem
         private class TraversalHandler : AbstractTraversalHandlerBase
         {
             public List<FileEntry> Entries = new List<FileEntry>();
+            private ActionFilter _actionFilter = new ActionFilter();
 
             public override void ProcessEntry(FileSystemTraverser.TraversalEntry traversalEntry)
             {
                 FileInfo fileInfo = traversalEntry.Info as FileInfo;
-                if(null != fileInfo)
+                if (null != fileInfo)
                 {
+                    _actionFilter.MaybeExecute(()=> { Debug.WriteLine(fileInfo.FullName); });
+                    
                     String name = fileInfo.Name;
                     String location = fileInfo.DirectoryName;
                     long length = fileInfo.Length;
-                    String hash = "";
-                    try
-                    {
-                        if (name.EndsWith("jpg"))
-                        {
-                            hash = ByteTools.ToByteString(FileTools.CreateMD5(fileInfo.FullName));
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-                        LogError(ex);
-                    }
                     Entries.Add(new FileEntry()
                     {
                         Name = name,
                         Location = location,
-                        Size = length,
-                        Hash = hash
+                        Size = length
                     });
                 }
             }
 
             private void LogError(Exception ex)
             {
-                Console.WriteLine(ex);
+                File.AppendAllText(@"c:\temp\error.log", ex.ToString() + "\n");
+                Debug.WriteLine(ex);
             }
+        }
+
+        private void LogError(Exception ex)
+        {
+            File.AppendAllText(@"c:\temp\error.log", ex.ToString() + "\n");
+            Debug.WriteLine(ex);
+        }
+
+        public void CalculateHash(FileEntry entry)
+        {
+            entry.Hash = ByteTools.ToByteString(FileTools.CreateMD5(Path.Combine(entry.Location, entry.Name)));
         }
 
         private List<FileEntry> CollectFileEntries(string directory)

@@ -73,5 +73,25 @@ namespace Durchsucher
             _fileEntryRepository.LoadFromDirectory(srcDir);
             Filter();
         }
+
+        internal void CalculateHashes(CancelationToken cancelationToken)
+        {
+            foreach(var entry in _fileEntryRepository.GetAll())
+            {
+                if(!cancelationToken.Canceled)
+                {
+                    try
+                    {
+                        if(String.IsNullOrWhiteSpace(entry.Hash))
+                        {
+                            _fileEntryRepository.CalculateHash(entry);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+        }
     }
 }

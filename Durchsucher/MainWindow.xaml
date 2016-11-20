@@ -17,6 +17,10 @@
                 <TextBlock>Filter:</TextBlock>
                 <TextBox Text="{Binding Path=FilterText, UpdateSourceTrigger=PropertyChanged}" Width="359"></TextBox>
                 <TextBlock Text="{Binding FilteredEntries.Count}"></TextBlock>
+                <Button Click="LoadButton_Click">Load</Button>
+                <Button Click="ScanButton_Click">Scan</Button>
+                <Button Click="SaveButton_Click">Save</Button>
+                <Button Name="CancelButton" Click="HashButton_Click">CalculateHash</Button>
             </StackPanel>
             <DataGrid Grid.Row="1" ItemsSource="{Binding Path=FilteredEntries}" IsReadOnly="True" MouseDoubleClick="DataGrid_MouseDoubleClick"></DataGrid>
         </Grid>
