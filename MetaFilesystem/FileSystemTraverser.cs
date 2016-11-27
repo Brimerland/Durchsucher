@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MetaFilesystem
 {
     public class FileSystemTraverser
     {
+        private CancellationToken cancellationToken;
+
+        public FileSystemTraverser(CancellationToken cancellationToken)
+        {
+            this.cancellationToken = cancellationToken;
+        }
+
         public class TraversalEntry
         {
             public FileSystemInfo Info { get; set; }
@@ -23,8 +31,13 @@ namespace MetaFilesystem
                 {
                     foreach (var fileNameString in Sort(Directory.GetFiles(directoryName)))
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         handler.ProcessEntry(new TraversalEntry() { Info = new FileInfo(fileNameString) });
                     }
+                }
+                catch(OperationCanceledException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {

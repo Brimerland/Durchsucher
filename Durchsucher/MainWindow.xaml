@@ -9,8 +9,9 @@
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition></RowDefinition>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
                 <CheckBox Margin="0,0,10,0" IsChecked="{Binding IsInverted}">invert</CheckBox>
@@ -19,10 +20,16 @@
                 <TextBlock Text="{Binding FilteredEntries.Count}"></TextBlock>
                 <Button Click="LoadButton_Click">Load</Button>
                 <Button Click="ScanButton_Click">Scan</Button>
+                <Button Click="HashButton_Click">Calc Hashes</Button>
                 <Button Click="SaveButton_Click">Save</Button>
-                <Button Name="CancelButton" Click="HashButton_Click">CalculateHash</Button>
+                <Button Click="CancelButton_Click">Cancel</Button>
             </StackPanel>
             <DataGrid Grid.Row="1" ItemsSource="{Binding Path=FilteredEntries}" IsReadOnly="True" MouseDoubleClick="DataGrid_MouseDoubleClick"></DataGrid>
+            <StatusBar Grid.Row="2">
+                <StatusBarItem>
+                    <TextBlock Text="{Binding CurrentState}"/>
+                </StatusBarItem>                
+            </StatusBar>
         </Grid>
     </Grid>
 </Window>

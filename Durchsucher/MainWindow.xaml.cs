@@ -28,22 +28,10 @@ namespace Durchsucher
         public MainWindow()
         {
             // todo: build UI for this
-            bool refresh = true;
             var dataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments, Environment.SpecialFolderOption.None), FILENAME_ENTRIES);
             var srcDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None);
 
             InitializeComponent();
-
-            //// load data
-            //if (refresh)
-            //{
-            //    _filterModel.CollectFromDirectory(srcDir);
-            //    _filterModel.SaveToFile(dataFile);
-            //}
-            //else
-            //{
-            //    //_filterModel.LoadFromFile(dataFile);
-            //}
             this.DataContext = _filterModel;
         }
 
@@ -167,26 +155,13 @@ namespace Durchsucher
             {
                 MessageBox.Show(ex.ToString());
             }
-
         }
 
-        bool isHashing = false;
-        private CancelationToken _cancelToken = new CancelationToken();
         private void HashButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (!isHashing)
-                {
-                    _cancelToken = new CancelationToken();
-                    Task.Run(() => { _filterModel.CalculateHashes(_cancelToken); });
-                }
-                else
-                {
-                    _cancelToken.Canceled = true;
-                }
-                isHashing = !isHashing;
-                CancelButton.Content = isHashing ? "Cancel" : "CalculateHash";
+               _filterModel.CalculateHashes();
             }
             catch (Exception ex)
             {
@@ -195,5 +170,9 @@ namespace Durchsucher
 
         }
 
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            _filterModel.Cancel();
+        }
     }
 }

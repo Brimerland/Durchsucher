@@ -6,14 +6,32 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Durchsucher
 {
     public class FilterModel : NotifyPropertyChangeBase
     {
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         public List<FileEntry> FilteredEntries { get; set; }
         private FileEntryRepository _fileEntryRepository = new FileEntryRepository();
+
+        private String _currentState = "Ready";
+
+        public String CurrentState
+        {
+            get { return _currentState; }
+            set
+            {
+                if(value != _currentState)
+                {
+                    _currentState = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
 
         private String _filterText;
 
@@ -68,29 +86,55 @@ namespace Durchsucher
             _fileEntryRepository.SaveToFile(dataFile);
         }
 
-        internal void CollectFromDirectory(string srcDir)
+        internal async void CollectFromDirectory(string srcDir)
         {
-            _fileEntryRepository.LoadFromDirectory(srcDir);
-            Filter();
+            try
+            {
+                IProgress<String> progress = new Progress<String>((x) => { CurrentState = x; });
+                await _fileEntryRepository.LoadFromDirectory(srcDir, progress, _cancellationTokenSource.Token);
+                Filter();
+            }
+            finally
+            {
+                CurrentState = "Finished scanning";
+            }
+
         }
 
-        internal void CalculateHashes(CancelationToken cancelationToken)
+        public void Cancel()
         {
-            foreach(var entry in _fileEntryRepository.GetAll())
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+        }
+
+        internal async void CalculateHashes()
+        {
+            var cancellationToken = _cancellationTokenSource.Token;
+            try
             {
-                if(!cancelationToken.Canceled)
+                await Task.Run(() =>
                 {
-                    try
+                    foreach (var entry in _fileEntryRepository.GetAll())
                     {
-                        if(String.IsNullOrWhiteSpace(entry.Hash))
+                        cancellationToken.ThrowIfCancellationRequested();
+                        try
                         {
-                            _fileEntryRepository.CalculateHash(entry);
+                            CurrentState = entry.Name;
+                            if (String.IsNullOrWhiteSpace(entry.Hash))
+                            {
+                                _fileEntryRepository.CalculateHash(entry);
+                            }
+                        }
+                        catch (Exception)
+                        {
                         }
                     }
-                    catch (Exception)
-                    {
-                    }
-                }
+                }, cancellationToken);
+            }
+            catch (Exception) { }
+            finally
+            {
+                CurrentState = "Finished scanning";
             }
         }
     }

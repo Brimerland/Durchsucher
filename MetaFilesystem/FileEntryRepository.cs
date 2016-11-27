@@ -53,11 +53,14 @@ namespace MetaFilesystem
             }
         }
 
-        public void LoadFromDirectory(string srcDir)
+        public Task LoadFromDirectory(string srcDir, IProgress<String> progressHandler, CancellationToken cancellationToken)
         {
-            var newEntries =  CollectFileEntries(srcDir);
-            _entities.Clear();
-            _entities.AddRange(newEntries);
+            return Task.Run(() => 
+            {
+                var newEntries = CollectFileEntries(srcDir, progressHandler, cancellationToken);
+                _entities.Clear();
+                _entities.AddRange(newEntries);
+            }, cancellationToken);
         }
 
         private class TraversalHandler : AbstractTraversalHandlerBase
@@ -65,13 +68,15 @@ namespace MetaFilesystem
             public List<FileEntry> Entries = new List<FileEntry>();
             private ActionFilter _actionFilter = new ActionFilter();
 
+            public IProgress<string> ProgressHandler { get; internal set; }
+
             public override void ProcessEntry(FileSystemTraverser.TraversalEntry traversalEntry)
             {
                 FileInfo fileInfo = traversalEntry.Info as FileInfo;
                 if (null != fileInfo)
                 {
                     _actionFilter.MaybeExecute(()=> { Debug.WriteLine(fileInfo.FullName); });
-                    
+                    ProgressHandler?.Report(fileInfo.FullName);
                     String name = fileInfo.Name;
                     String location = fileInfo.DirectoryName;
                     long length = fileInfo.Length;
@@ -102,10 +107,13 @@ namespace MetaFilesystem
             entry.Hash = ByteTools.ToByteString(FileTools.CreateMD5(Path.Combine(entry.Location, entry.Name)));
         }
 
-        private List<FileEntry> CollectFileEntries(string directory)
+        private List<FileEntry> CollectFileEntries(string directory, IProgress<String> progressHandler, CancellationToken cancellationToken)
         {
-            var handler = new TraversalHandler();
-            var traverser = new FileSystemTraverser();
+            var handler = new TraversalHandler()
+            {
+                ProgressHandler = progressHandler
+            };
+            var traverser = new FileSystemTraverser(cancellationToken);
             traverser.Traverse(directory, handler);
             return handler.Entries;
         }

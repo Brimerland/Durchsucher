@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="ActionFilter.cs" />
     <Compile Include="ByteTools.cs" />
-    <Compile Include="CancelationToken.cs" />
     <Compile Include="FileTools.cs" />
     <Compile Include="NotifyPropertyChangeBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
